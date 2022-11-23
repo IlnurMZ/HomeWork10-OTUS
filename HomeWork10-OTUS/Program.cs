@@ -1,127 +1,94 @@
 ﻿using System.Text;
 using static System.Environment;
+using static System.IO.Path;
 namespace HomeWork10_OTUS
 {
     internal class Program
     {
         static void Main(string[] args)
-        {
-            //Console.WriteLine($"PathSeparatir {Path.PathSeparator}");
-            //Console.WriteLine($"DirectorySeparator {Path.DirectorySeparatorChar}");
-            //Console.WriteLine($"CurrentDirectory {Directory.GetCurrentDirectory()}");
-            //Console.WriteLine($"SystemDirectory {Environment.SystemDirectory}");
+        {            
+            string[] customPath = new[] { "C:\\", "OTUS"};
+            string catalog = Combine(customPath);
+            DirectoryInfo directoryInfo = new DirectoryInfo(catalog);
+            directoryInfo.Create();
 
-            // Получение информации о дисках на компьютере
-            //foreach (DriveInfo drive in DriveInfo.GetDrives())
-            //{
-            //    if (drive.IsReady)
-            //    {
-            //        Console.WriteLine($"{drive.Name} | {drive.DriveFormat} | {drive.TotalFreeSpace}");
-            //    }
-            //}
+            directoryInfo.CreateSubdirectory("TestDir1");
+            directoryInfo.CreateSubdirectory("TestDir2");
 
-            // Создание папки
-            string userFolder = GetFolderPath(SpecialFolder.Personal);
-            string[] customPath = new[] { userFolder, "OTUS", "NewFolder" };
-            string dir = Path.Combine(customPath); // комбинирует названия директорий
-           
-            //Console.WriteLine($"Is exist? {Directory.Exists(dir)}"); // проверка на существование папки
+            string catalog1 = Combine(catalog,"TestDir1");
+            string catalog2 = Combine(catalog, "TestDir2");
+            string[] catalogs = new[] { catalog1, catalog2 };
 
-            //Directory.CreateDirectory(dir);
-            //Console.WriteLine($"Is exist? {Directory.Exists(dir)}");
-
-            //Directory.Delete(dir,true); // удаление папки
-            //Console.WriteLine($"Is exist? {Directory.Exists(dir)}");
-
-            var textFile = Path.Combine(dir,"Dummy.csv");
-            //Console.WriteLine(textFile);
-
-            //var textWriter = File.CreateText(textFile);
-            //textWriter.WriteLine("Hi!"); // записывает данные в буфер
-            //textWriter.Close();
-
-            //Console.WriteLine(File.Exists(textFile));
-
-            //File.Copy(textFile, textFile + ".docx"); // через пакет DocumentFormat.OpenXml
-
-            //using (var textWriter = File.CreateText(textFile))
-            //{
-            //    textWriter.WriteLine("Boogy, boogy!");
-
-            //}
-
-            //File.Delete(textFile + ".docx");
-            //Console.WriteLine(File.Exists(textFile + ".docx"));
-
-            //var textReader = File.OpenText(textFile);
-            //Console.WriteLine(textReader.ReadToEnd());
-
-            //string s = "SomeText";
-            //char[] chars = s.ToCharArray();
-
-            //using (var writer = new StreamWriter(textFile, true))
-            //{
-            //    writer.WriteLine(chars);
-            //}
-
-            //using (var reader = new StreamReader(textFile))
-            //{
-            //    while (!reader.EndOfStream)
-            //    {
-            //        var row = reader.ReadLine();
-            //        Console.WriteLine(row);
-            //    }
-            //}
-
-            var csv = ReadData(textFile);
-            //foreach (var row in csv)
-            //{
-            //    row[0] += "X";
-            //}
-
-            //WriteData(csv, textFile);
-
-            static List<string[]> ReadData(string filename)
+            // запись имени
+            for (int i = 0; i < catalogs.Length; i++)
             {
-                var result = new List<string[]>();
-                try
+                for (int j = 1; j < 11; j++)
                 {
-                    using (var reader = new StreamReader (filename))
+                    string name = "File" + j + ".txt";
+                    string path = Combine(catalogs[i], name);
+                    try
                     {
-                        while (!reader.EndOfStream)
+                        using (var writer = File.CreateText(path))
                         {
-                            var line = reader.ReadLine();
-                            var values = line?.Split(';');
-                            result.Add(values);
+                            writer.WriteLine(name);                            
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-
-                return result;
-            }
-
-            static void WriteData(List<string[]> data, string filename)
-            {
-                try
-                {
-                    using (var writer = new StreamWriter(filename))
+                    catch (Exception exception)
                     {
-                        foreach (var item in data)
-                        {
-                            writer.WriteLine(string.Join(";", item));
-                        }
-                        
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
+                        Console.WriteLine(exception.Message);
+                    }                    
                 }
             }
+
+            // запись времени
+            for (int i = 0; i < catalogs.Length; i++)
+            {
+                for (int j = 1; j < 11; j++)
+                {
+                    string name = "File" + j + ".txt";
+                    string path = Combine(catalogs[i], name);                    
+                    try
+                    {
+                        using (var writer = new StreamWriter(path, true))
+                        {
+                            writer.WriteAsync(DateTime.Now.ToString());
+                        }                        
+                    }
+                    catch (Exception exception)
+                    {
+                        Console.WriteLine(exception.Message);
+                    }                    
+                }
+            }
+
+            // чтение файлов
+            for (int i = 0; i < catalogs.Length; i++)
+            {
+                Console.WriteLine(catalogs[i]);
+                for (int j = 1; j < 11; j++)
+                {
+                    string name = "File" + j + ".txt";
+                    string path = Combine(catalogs[i], name);                    
+                    try
+                    {
+                        using (var reader = new StreamReader(path))
+                        {
+                            while (!reader.EndOfStream)
+                            {
+                                var row = reader.ReadLine();
+                                Console.Write(row + " ");
+                            }
+                            Console.WriteLine();
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        Console.WriteLine(exception.Message);
+                    }                    
+                }
+                Console.WriteLine();
+            }
+
         }
     }
 }
